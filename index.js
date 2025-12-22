@@ -1,19 +1,20 @@
 require("dotenv").config();
-const cors = require("cors");
 const express = require("express"); //factory
+const cors = require("cors");
+const connectDB = require('./config/db');
+const registerController = require("./Controller/userController");
 const app = express(); //express() → makes a car app → the car
-const connectDB = require('./config/db')
 
+//middleware
 //express.json => reads data send by forntend as it is key value pair
-app.use(express.json);
+app.use(express.json());
 app.use(cors());
 
 //DB connection
 connectDB()
 
-app.get("/", (req, res) => {
-  res.send("hello world");
-});
+//route mounting
+app.use("/user", registerController)
 
 const port = process.env.PORT || 3000;
 app.listen(port, () => {
