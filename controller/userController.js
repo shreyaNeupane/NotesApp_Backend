@@ -8,20 +8,31 @@ const registerController = async (req, res) => {
     }
     //checking existing user
     const existingUser = await userModel.findOne({ email });
-    if(existingUser){
-
+    if (existingUser) {
       return res.status(401).send("user already exist.Please login");
     }
 
     //save user
-const newUser = new userModel({email,username,password});
-await newUser.save()
-res.status(200).send("User sucessfully registerd")
-
+    const newUser = new userModel({ email, username, password });
+    await newUser.save();
+    res.status(200).send("User sucessfully registerd");
   } catch (error) {
     console.log(error);
     res.status(500).send("Internal server error");
-
   }
 };
-module.exports = registerController;
+
+const loginController = async (req, res) => {
+  try {
+    const { email, password } = req.body;
+    const user = await userModel.findOne({ email, password });
+    if (!user) {
+      res.status(400).send("invalid email or password");
+    }
+    res.status(200).send("logged in sucessfully");
+  } catch (error) {
+    console.log(error);
+    res.status(500).send("internal server error");
+  }
+};
+module.exports = { registerController, loginController };
