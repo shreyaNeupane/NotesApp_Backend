@@ -1,9 +1,10 @@
+const bcrypt = require("bcrypt");
 const userModel = require("../models/userModel");
 const registerController = async (req, res) => {
   try {
     //check if all fields are provided
     const { email, username, password } = req.body;
-    if (!email | !username | !password) {
+    if (!email || !username || !password) {
       return res.status(400).send("please provide required fields");
     }
     //checking existing user
@@ -11,9 +12,15 @@ const registerController = async (req, res) => {
     if (existingUser) {
       return res.status(401).send("user already exist.Please login");
     }
+    // hash password
+    const hashedPassword = await bcrypt.hash(password, 8);
 
-    //save user
-    const newUser = new userModel({ email, username, password });
+    //save user with hashed password
+    const newUser = new userModel({
+      email,
+      username,
+      password: hashedPassword,
+    });
     await newUser.save();
     res.status(200).send("User sucessfully registerd");
   } catch (error) {
@@ -25,9 +32,15 @@ const registerController = async (req, res) => {
 const loginController = async (req, res) => {
   try {
     const { email, password } = req.body;
-    const user = await userModel.findOne({ email, password });
+    //check if user exist
+    const user = await userModel.findOne({ email });
     if (!user) {
       res.status(400).send("invalid email or password");
+    }
+    //match password
+    const isMatched = await bcrypt.compare(password, user.password);
+    if (!isMatched) {
+      res.status(402).send("invalid password or email");
     }
     res.status(200).send("logged in sucessfully");
   } catch (error) {
