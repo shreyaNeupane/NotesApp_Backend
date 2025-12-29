@@ -1,4 +1,5 @@
 const bcrypt = require("bcrypt");
+const jwt = require("jsonwebtoken")
 const userModel = require("../models/userModel");
 const registerController = async (req, res) => {
   try {
@@ -35,14 +36,19 @@ const loginController = async (req, res) => {
     //check if user exist
     const user = await userModel.findOne({ email });
     if (!user) {
-      res.status(400).send("invalid email or password");
+     return res.status(400).send("invalid email or password");
     }
     //match password
     const isMatched = await bcrypt.compare(password, user.password);
     if (!isMatched) {
-      res.status(402).send("invalid password or email");
+     return res.status(402).send("invalid password or email");
     }
-    res.status(200).send("logged in sucessfully");
+    //create jwt token => payload+secert
+    // { id: user._id } => payload = data to put inside the token
+    const token = jwt.sign({id:user._id},process.env.JWT_SECRET,{expiresIn:"7d"})
+   return res.status(200).json({
+      message:"logged in sucessfully",
+    token});
   } catch (error) {
     console.log(error);
     res.status(500).send("internal server error");
