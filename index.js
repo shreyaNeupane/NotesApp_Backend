@@ -3,6 +3,7 @@ const express = require("express"); //factory
 const cors = require("cors");
 const connectDB = require("./config/db");
 const userRoute = require("./routes/userRoute")
+const noteRoute = require("./routes/noteRoute");
 
 const app = express(); //express() → makes a car app → the car
 
@@ -16,7 +17,7 @@ connectDB();
 app.use(cors());
 //route mounting
 app.use("/user", userRoute);
-
+app.use("/note",noteRoute);
 
 const port = process.env.PORT || 3000;
 app.listen(port, () => {
