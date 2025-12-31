@@ -14,8 +14,12 @@ const noteSchema = new mongoose.Schema(
       type: Boolean,
       default: false,
     },
+    createdBy:{
+      type:mongoose.Schema.Types.ObjectId, //reference typ
+    ref:"User"
+    }
   },
   { timestamps: true }
 );
-const notesModel = mongoose.model("notes", noteSchema);
+const notesModel = mongoose.model("Note", noteSchema);
 module.exports = notesModel;
