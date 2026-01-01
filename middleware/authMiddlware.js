@@ -12,7 +12,9 @@ const authMiddlware = async (req, res, next) => {
     //verfying token  using secert key
     const decoded = jwt.verify(token,process.env.JWT_SECRET);
     //attach decoded data to request
-    req.user = decoded;
+    req.user = decoded.id;
+    console.log("authMiddleware user:", req.user);
+
 //move to next middleware/controller
     next();
   } catch (error) {

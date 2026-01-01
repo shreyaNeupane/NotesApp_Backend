@@ -19,7 +19,7 @@ const createNoteController = async (req, res) => {
       title: title,
       description: description,
       isPinned: isPinned,
-      createdBy: user._id,
+      createdBy: user,
     });
     await note.save();
     res.status(200).json({
@@ -33,21 +33,21 @@ const createNoteController = async (req, res) => {
 };
 //get all notes
 const getNoteController = async (req, res) => {
-  try{
- const user = req.user;
-  if (!user) {
-    return res.status(401).send("user is not logged  in");
+  try {
+    const user = req.user;
+    if (!user) {
+      return res.status(401).send("user is not logged  in");
+    }
+    const note = await notesModel
+      .find({ createdBy: user });
+    res.status(200).json({
+      message: "note fetched sucessfully",
+      note: note,
+    });
+  } catch (error) {
+    console.log(error);
+    res.status(500).send("internal error");
   }
-  const note = await notesModel.find({ createdBy: user._id });
-  res.status(200).json({
-    message: "note fetched sucessfully",
-    note: note,
-  });
-  }catch(error){
-    console.log(error)
-    res.status(500).send("internal error")
-  }
- 
 };
 
 //delete note
@@ -59,15 +59,15 @@ const deletNoteController = async (req, res) => {
       res.status(401).send("user is not logged in");
     }
     const noteId = req.params._id;
+    console.log("delete" , user)
 
-   
     const deleteNote = await notesModel.findByIdAndDelete({
       _id: noteId,
-      createdBy: user._id, //verifying ownership
+      createdBy: user, //verifying ownership
     });
-      if (!deleteNote) {
-        return res.status(404).send("Note not found or you are not authorized");
-      }
+    if (!deleteNote) {
+      return res.status(404).send("Note not found or you are not authorized");
+    }
     res.status(200).json({
       message: "note is deleted sucessfully",
     });
@@ -79,32 +79,60 @@ const deletNoteController = async (req, res) => {
 
 // update note
 
-const updateNoteController = async(req,res) => {
- const user = req.user
- if(!user){
-  return res.status(401).send("user is not logged in")
- }
+const updateNoteController = async (req, res) => {
+  const user = req.user;
+  if (!user) {
+    return res.status(401).send("user is not logged in");
+  }
 
- const noteId = req.params._id;
-  const { data } = req.body;
- const updateNote = await notesModel.findByIdAndUpdate({
- _id : noteId,
-  data
- })
- if(!updateNote){
-  return res.status(402).send("either note is not found or you are unauthorized")
- }
+  const noteId = req.params._id;
+  const data = req.body;
+  const updateNote = await notesModel.findByIdAndUpdate(
+    {
+      _id: noteId,
+    },
+    // only changes the data being send keep other as it is
+    { $set: data },
+    // returns updated vaulue
+    { new: true }
+  );
+  if (!updateNote) {
+    return res
+      .status(402)
+      .send("either note is not found or you are unauthorized");
+  }
 
- res.status(200).json({
-message : "note updated sucessfully",
-data
- })
+  res.status(200).json({
+    message: "note updated sucessfully",
+    updateNote,
+  });
 };
 
+//get single note
+const getSingleNoteController = async(req,res) => {
+  const user = req.user
+  if(!user){
+    return res.status(401).send("you need to login to access data")
+  }
+  const singleId = req.params._id
+  
+
+  const note = await notesModel.findOne({
+    _id: singleId,createdBy : user
+  });
+  if(!note){
+    return res.status(402).send("note is not available or you are not authorized")
+  }
+  res.status(200).json({
+    message:"note fetched successfully",
+    note
+  })
+}
 
 module.exports = {
   createNoteController,
   getNoteController,
   deletNoteController,
-  updateNoteController
+  updateNoteController,
+  getSingleNoteController
 };
