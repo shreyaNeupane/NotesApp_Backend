@@ -6,12 +6,14 @@ const registerController = async (req, res) => {
     //check if all fields are provided
     const { email, username, password } = req.body;
     if (!email || !username || !password) {
-      return res.status(400).send("please provide required fields");
+      return res.status(400).json({
+        message : "please provide required fields"});
     }
     //checking existing user
     const existingUser = await userModel.findOne({ email });
     if (existingUser) {
-      return res.status(401).send("user already exist.Please login");
+      return res.status(401).json({
+     message :   "User already exists. Please login"});
     }
     // hash password
     const hashedPassword = await bcrypt.hash(password, 8);
@@ -26,7 +28,8 @@ const registerController = async (req, res) => {
     res.status(200).send("User sucessfully registerd");
   } catch (error) {
     console.log(error);
-    res.status(500).send("Internal server error");
+    res.status(500).json({
+      message :"Internal server error"});
   }
 };
 

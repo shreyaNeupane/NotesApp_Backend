@@ -14,7 +14,9 @@ app.use(express.json());
 //DB connection
 connectDB();
 
-app.use(cors());
+app.use(cors({
+  origin : "*",
+}));
 //route mounting
 app.use("/user", userRoute);
 app.use("/note",noteRoute);
