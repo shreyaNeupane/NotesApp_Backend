@@ -25,7 +25,7 @@ const registerController = async (req, res) => {
       password: hashedPassword,
     });
     await newUser.save();
-    res.status(200).send("User sucessfully registerd");
+    res.status(200).json({message :"User sucessfully registerd"});
   } catch (error) {
     console.log(error);
     res.status(500).json({
@@ -39,12 +39,12 @@ const loginController = async (req, res) => {
     //check if user exist
     const user = await userModel.findOne({ email });
     if (!user) {
-     return res.status(400).send("invalid email or password");
+     return res.status(401).json({message :"invalid email or password"});
     }
     //match password
     const isMatched = await bcrypt.compare(password, user.password);
     if (!isMatched) {
-     return res.status(402).send("invalid password or email");
+     return res.status(401).json({message :"invalid password or email"});
     }
     //create jwt token => payload+secert
     // { id: user._id } => payload = data to put inside the token
@@ -54,7 +54,7 @@ const loginController = async (req, res) => {
     token});
   } catch (error) {
     console.log(error);
-    res.status(500).send("internal server error");
+    res.status(500).json({message : "internal server error"});
   }
 };
 module.exports = { registerController, loginController };
