@@ -58,7 +58,7 @@ const deletNoteController = async (req, res) => {
       res.status(401).send("user is not logged in");
     }
     const noteId = req.params._id;
-    console.log("delete", user);
+    // console.log("delete", user);
 
     const deleteNote = await notesModel.findByIdAndDelete({
       _id: noteId,
